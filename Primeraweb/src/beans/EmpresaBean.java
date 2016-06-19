@@ -104,7 +104,7 @@ public class EmpresaBean implements Serializable {
 		this.empresaModal = new Empresa();
 
 	}
-	
+	/*hola mundo*/
 	public void botonAceptar(){
         String mensaje = "";
         if(this.empresaModal.getId() > 0){

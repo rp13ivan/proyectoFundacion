@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	template="./WEB-INF/templates/plantillaPrincipal.xhtml"
+	xmlns:p="http://primefaces.org/ui">
+
+
+	<ui:define name="titulo">Catalogo Empresa</ui:define>
+
+	<ui:define name="contenido">
+		<p:layout fullPage="true">
+			<p:layoutUnit position="north" resizable="true"
+				header="FUNDACION GENERAL ECUATORIANA">
+
+				<p:outputLabel>Administración de Empresa</p:outputLabel>
+
+			</p:layoutUnit>
+			<center>
+
+
+				<p:layoutUnit position="center">
+
+					<h:form id="panelEmpresa">
+						<p:growl id="growl" life="2000" />
+
+						<p:panel id="panelFiltro" header="Resultados de la Busqueda">
+							<p:panelGrid id="gridFiltro" columns="3">
+
+								<p:outputLabel for="valorFiltro" value="Ingrese el nombre" />
+
+								<p:inputText id="valorFiltro"
+									value="#{empresaBean.valorBusqueda}" required="true"
+									style="width:100%;" maxlength="20" />
+
+								<p:commandButton id="botonBusqueda" value="Busqueda"
+									update="tablaEmpresa,growl"
+									actionListener="#{empresaBean.busquedaEmpresa()}"
+									process="@parent" icon="ui-icon-search"
+									styleClass="ui-priority-primary" />
+
+							</p:panelGrid>
+
+							<p:dataTable id="tablaEmpresa" var="emp"
+								value="#{empresaBean.listaEmpresa}" selectionMode="single"
+								selection="#{empresaBean.empresaSeleccionada}"
+								rowKey="#{emp.id}" paginator="true" rows="5"
+								paginatorPosition="top"
+								paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+								paginatorAlwaysVisible="true"
+								emptyMessage="No se encontraron Datos">
+
+								<p:ajax event="rowSelect" listener="#{empresaBean.onRowSelect}" />
+
+								<p:ajax event="rowUnselect"
+									listener="#{empresaBean.onRowUnselect}" />
+
+								<p:column headerText="RUC">
+									<h:outputText value="#{emp.ruc}" />
+								</p:column>
+
+								<p:column headerText="NOMBRE">
+									<h:outputText value="#{emp.nombre}" />
+								</p:column>
+
+								<p:column headerText="ACTIVIDAD">
+									<h:outputText value="#{emp.actividad}" />
+								</p:column>
+
+								<f:facet name="footer">
+
+									<p:commandButton process="tablaEmpresa"
+										update=":formModal:modalEmpresa,:formModal:panelModalEmpresa"
+										icon="ui-icon-plusthick" value="Agregar" ajax="true"
+										actionListener="#{empresaBean.botonAgregar()}"
+										oncomplete="PF('dlg').show()" />
+
+									<p:commandButton process="tablaEmpresa"
+										update=":formModal:modalEmpresa,:formModal:panelModalEmpresa"
+										icon="ui-icon-plusthick" value="Editar" ajax="true"
+										actionListener="#{empresaBean.botonEditar()}"
+										oncomplete="PF('dlg').show()" />
+
+								</f:facet>
+
+							</p:dataTable>
+
+						</p:panel>
+
+					</h:form>
+
+				</p:layoutUnit>
+			</center>
+
+		</p:layout>
+
+		<!-- Modal  -->
+		<h:form id="formModal">
+			<p:dialog id="modalEmpresa" header="Empresa" widgetVar="dlg"
+				modal="true" showEffect="fade" hideEffect="fade" resizable="false"
+				closable="false">
+
+				<p:panel id="panelModalEmpresa" style="text-align:center;">
+				
+					<p:panelGrid id="gridModalEmpresa" columns="2"
+						rendered="#{not empty empresaBean.empresaModal}"
+						columnClasses="label,value">
+
+						<p:outputLabel for="valorRuc" value="Ruc: " />
+						<p:inputText id="valorRuc"
+							value="#{empresaBean.empresaModal.ruc}"
+							required="true" style="width:100%;" maxlength="30">
+
+						</p:inputText>
+
+						<p:outputLabel for="valorNombre" value="Nombre: " />
+						<p:inputText id="valorNombre"
+							value="#{empresaBean.empresaModal.nombre}"
+							required="true" style="width:100%;" maxlength="30">
+
+						</p:inputText>
+
+						<p:outputLabel for="valorActividad" value="Actividad: " />
+						<p:inputText id="valorActividad"
+							value="#{empresaBean.empresaModal.actividad}"
+							required="true" style="width:100%;" maxlength="30">
+
+						</p:inputText>
+
+					</p:panelGrid>
+
+					<p:spacer height="20px" />
+					<p:commandButton id="botonGuardar" value="Aceptar"
+						update=":panelEmpresa:tablaEmpresa,:panelEmpresa:growl,panelModalEmpresa"
+						actionListener="#{empresaBean.botonAceptar()}"
+						styleClass="ui-priority-primary"
+						process="@this formModal:panelModalEmpresa">
+						<p:confirm header="Confirmación" message="¿Enviar Cambios?"
+							icon="ui-icon-alert" />
+					</p:commandButton>
+					<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+						<p:commandButton value="Si" type="button"
+							styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+						<p:commandButton value="No" type="button"
+							styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+					</p:confirmDialog>
+
+					<p:commandButton id="botonCerrar" value="Cerrar"
+						update="panelModalEmpresa"
+						actionListener="#{empresaBean.botonCerrar()}"
+						styleClass="ui-priority-primary" process="@this"
+						oncomplete="PF('dlg').hide()">
+						<p:resetInput target="panelModalEmpresa" />
+					</p:commandButton>
+
+				</p:panel>
+
+
+
+			</p:dialog>
+		</h:form>
+	</ui:define>
+
+
+</ui:composition>
